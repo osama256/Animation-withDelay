@@ -1,45 +1,30 @@
-import { View, StyleSheet } from 'react-native';
-import Animated, { withDecay, useAnimatedGestureHandler, useSharedValue, useAnimatedStyle } from 'react-native-reanimated'
-import {PanGestureHandler} from 'react-native-gesture-handler'
+import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import React from 'react';
-
-
+import Animated, {withDelay, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 const App: () => React$Node = () => {
 
-  const x = useSharedValue(0)
-
-  const gestureHandler = useAnimatedGestureHandler({
-
-    onStart: (_,context) => {
-      context.startX = x.value
-    },
-    onActive: (event,context) => {
-      x.value = context.startX + event.translationX
-    },
-   
-    onEnd: event =>{
-
-      x.value = withDecay({
-        velocity : event.velocityX,
-        clamp : [0,250]
-      })
-    }
-
-  })
-  const animationStyle = useAnimatedStyle(() => {
-
+  const animation = useSharedValue(1)
+  const animationStyle= useAnimatedStyle(()=>{
     return{
-      transform:[
-        {
-          translateX : x.value
-        }
-      ]
+      // opacity:withTiming(animation.value,{
+      //   duration:1000
+      // },()=>{
+      //   animation.value=1
+      // })
+      opacity:animation.value
     }
   })
+
+  startAnimation = () => {
+    animation.value = withDelay(2000,withTiming(0,{duration:100}))
+  }
   return (
-    <PanGestureHandler onGestureEvent={gestureHandler}  >
-      <Animated.View style={[styles.box,animationStyle]} />
-      </PanGestureHandler>
+    <View style={styles.container}>
+      {/* <TouchableWithoutFeedback onPress={()=>{animation.value=0}}> */}
+      <TouchableWithoutFeedback onPress={startAnimation}>
+        <Animated.View style={[styles.box,animationStyle]} />
+      </TouchableWithoutFeedback>
+    </View>
   );
 }
 
@@ -47,18 +32,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems:'center'
   },
   box: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#631d94'
+    width: 200,
+    height: 200,
+    backgroundColor:'#631d94'
   }
 });
 
 export default App;
-
-
-// minDist={100}
-// activeOffsetX={}
-// failOffsetX={}
